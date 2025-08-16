@@ -6,6 +6,12 @@ type SqlRow = Record<string, SqlValue>;
 type SqlQueryResult = SqlRow[];
 
 const pool = new Pool({
+  host: process.env.PGHOST,
+  port: process.env.PGPORT ? parseInt(process.env.PGPORT) : undefined,
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE,
+  ssl: { rejectUnauthorized: false },
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
