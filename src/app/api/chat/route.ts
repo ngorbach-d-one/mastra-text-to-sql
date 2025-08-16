@@ -62,6 +62,11 @@ export async function POST(request: Request) {
           error.message.includes("ResponseAborted")
         ) {
           console.log("Client disconnected:", error);
+        } else if (
+          error instanceof Error &&
+          error.message.startsWith("Unhandled chunk type:")
+        ) {
+          console.warn("Ignoring unhandled chunk:", error.message);
         } else {
           console.error("Stream processing error:", error);
 
