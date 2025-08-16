@@ -4,14 +4,14 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center text-wrap">
-      <header className="w-full py-4 px-6 mb-8 flex fixed top-0 z-50 justify-center items-center bg-gray-100 dark:bg-gray-800 shadow-sm">
+      <header className="w-full py-4 px-6 mb-8 flex fixed top-0 z-50 justify-center items-center bg-primary text-primary-foreground shadow-sm">
         <div className="w-full max-w-5xl flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-gray-800">
+          <h1 className="text-2xl font-semibold">
             Mastra Text-to-SQL Demo: World Cities Population
           </h1>
           <Link
             href="/data"
-            className="px-4 py-2 text-sm bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors"
+            className="px-4 py-2 text-sm bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-md transition-colors"
           >
             View Dataset
           </Link>
