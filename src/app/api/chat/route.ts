@@ -35,23 +35,13 @@ export async function POST(request: Request) {
 
     (async () => {
       try {
-        for await (const chunk of stream.fullStream) {
+        for await (const delta of stream.textStream) {
           try {
-            if (chunk.type === "text-delta") {
-              const formattedChunk = `data: ${JSON.stringify({ type: "text", value: chunk.textDelta })}\n\n`;
-              await writer.write(encoder.encode(formattedChunk));
-            } else if (chunk.type === "error") {
-              const message =
-                chunk.error instanceof Error
-                  ? chunk.error.message
-                  : String(chunk.error);
-              await writer.write(
-                encoder.encode(
-                  `data: ${JSON.stringify({ type: "error", value: message })}\n\n`
-                )
-              );
-              break;
-            }
+            await writer.write(
+              encoder.encode(
+                `data: ${JSON.stringify({ type: "text", value: delta })}\n\n`
+              )
+            );
           } catch (writeError) {
             console.log(
               "Write error (client likely disconnected):",
@@ -81,9 +71,11 @@ export async function POST(request: Request) {
           console.error("Stream processing error:", error);
 
           try {
+            const message =
+              error instanceof Error ? error.message : String(error);
             await writer.write(
               encoder.encode(
-                `data: ${JSON.stringify({ type: "error", value: error instanceof Error ? error.message : String(error) })}\n\n`
+                `data: ${JSON.stringify({ type: "error", value: message })}\n\n`
               )
             );
           } catch (writeError) {
