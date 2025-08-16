@@ -1,8 +1,8 @@
 import { azure } from "@ai-sdk/azure";
 import { Agent } from "@mastra/core/agent";
 import * as tools from "../tools/population-info";
-import { LanguageModelV1 } from "@ai-sdk/provider";
 import { Client } from "pg";
+import type { LanguageModelV1 } from "ai";
 
 const TABLES = ["customers", "employees", "order_items", "orders", "products"];
 
@@ -60,7 +60,7 @@ const getDatabaseSchema = async () => {
        FROM information_schema.columns
        WHERE table_schema = 'public' AND table_name = ANY($1::text[])
        ORDER BY table_name, ordinal_position;`,
-      [TABLES],
+      [TABLES]
     );
 
     const schemaByTable = rows.reduce<Record<string, string[]>>((acc, row) => {
@@ -79,7 +79,8 @@ const getDatabaseSchema = async () => {
 
     return (
       TABLES.map(
-        (table) => `${table} (\n${(schemaByTable[table] || []).join(",\n")}\n    )`,
+        (table) =>
+          `${table} (\n${(schemaByTable[table] || []).join(",\n")}\n    )`
       ).join(";\n") + ";"
     );
   } catch (err) {
@@ -116,7 +117,7 @@ ${schema}
     WORKFLOW:
     1. Analyze the user's question about the data
     2. Generate an appropriate SQL query
-    3. Execute the query using the Execute SQL Query tool
+    3. Execute the query using the executeSQLQuery tool
     4. Return results in markdown format with these sections:
 
        ### SQL Query
@@ -131,9 +132,9 @@ ${schema}
        [Query results in table format]
     `,
   model: azure(
-    process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o",
-  ) as LanguageModelV1,
+    process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o"
+  ) as unknown as LanguageModelV1,
   tools: {
-    populationInfo: tools.populationInfo,
+    executeSQLQuery: tools.populationInfo,
   },
 });
