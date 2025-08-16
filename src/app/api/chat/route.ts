@@ -35,8 +35,7 @@ export async function POST(request: Request) {
 
     (async () => {
       try {
-        const reader = stream.fullStream;
-        for await (const chunk of reader) {
+        for await (const chunk of stream.textStream) {
           try {
             if (chunk.type === "text-delta") {
               const formattedChunk = `data: ${JSON.stringify({ type: "text", value: chunk.textDelta })}\n\n`;
