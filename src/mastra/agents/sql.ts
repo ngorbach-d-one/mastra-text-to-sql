@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { azure } from "@ai-sdk/azure";
 import { Agent } from "@mastra/core/agent";
 import * as tools from "../tools/population-info";
 import { LanguageModelV1 } from "@ai-sdk/provider";
@@ -130,7 +130,9 @@ ${schema}
        ### Results
        [Query results in table format]
     `,
-  model: openai("gpt-4o") as LanguageModelV1,
+  model: azure(
+    process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o",
+  ) as LanguageModelV1,
   tools: {
     populationInfo: tools.populationInfo,
   },

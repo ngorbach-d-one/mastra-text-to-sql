@@ -35,8 +35,7 @@ export async function POST(request: Request) {
 
     (async () => {
       try {
-        const reader = stream.textStream;
-        for await (const chunk of reader) {
+        for await (const chunk of stream.textStream) {
           try {
             const formattedChunk = `data: ${JSON.stringify({ type: "text", value: chunk })}\n\n`;
             await writer.write(encoder.encode(formattedChunk));
