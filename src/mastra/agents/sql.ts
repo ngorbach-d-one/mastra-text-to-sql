@@ -132,8 +132,8 @@ ${schema}
        [Query results in table format]
     `,
   model: azure(
-    process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o"
-  ) as unknown as LanguageModelV1,
+    process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o",
+  ) as LanguageModelV1,
   tools: {
     executeSQLQuery: tools.populationInfo,
   },
