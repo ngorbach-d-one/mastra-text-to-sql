@@ -54,20 +54,20 @@ export default function DataPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header with subtle border */}
-      <header className="relative py-8 mb-8 border-b border-gray-200 dark:border-gray-800">
+      <header className="relative py-8 mb-8 border-b border-border">
         <div className="container mx-auto px-4 relative z-10">
-          <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-800 dark:text-white">
+          <h1 className="text-4xl md:text-5xl font-bold text-center text-primary">
             City Population Database
           </h1>
-          <p className="text-center text-gray-600 dark:text-gray-300 mt-2 max-w-2xl mx-auto">
+          <p className="text-center text-muted-foreground mt-2 max-w-2xl mx-auto">
             Complete database of city population information
           </p>
           <div className="mt-6 text-center">
             <Link
               href="/"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-primary hover:underline"
             >
               ← Back to Chat
             </Link>
@@ -77,19 +77,19 @@ export default function DataPage() {
 
       <main className="container mx-auto px-4 max-w-7xl pb-16">
         <section>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div className="bg-card rounded-lg shadow-md overflow-hidden border border-border">
             {isLoading ? (
               <div className="p-12 text-center">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent dark:border-blue-400 align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                <p className="mt-4 text-gray-600 dark:text-gray-300">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                <p className="mt-4 text-muted-foreground">
                   Loading database...
                 </p>
               </div>
             ) : error ? (
               <div className="p-6 text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900 mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 mb-4">
                   <svg
-                    className="w-8 h-8 text-red-600 dark:text-red-400"
+                    className="w-8 h-8 text-destructive"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -103,45 +103,45 @@ export default function DataPage() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-red-800 dark:text-red-300 mb-2">
+                <h3 className="text-lg font-medium text-destructive mb-2">
                   Error
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">{error}</p>
+                <p className="text-muted-foreground">{error}</p>
               </div>
             ) : tableData && tableData.headers.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <table className="min-w-full divide-y divide-border">
                   <thead>
-                    <tr className="bg-gray-100 dark:bg-gray-800">
+                    <tr className="bg-muted">
                       {tableData.headers.map((header, index) => (
                         <th
                           key={index}
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wider"
+                          className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
                         >
                           {formatHeaderName(header)}
                         </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody className="bg-card divide-y divide-border">
                     {tableData.rows.map((row, rowIndex) => (
                       <tr
                         key={rowIndex}
                         className={
                           rowIndex % 2 === 0
-                            ? "bg-white dark:bg-gray-800"
-                            : "bg-gray-50 dark:bg-gray-700"
+                            ? "bg-card"
+                            : "bg-muted"
                         }
                       >
                         {row.map((cell, cellIndex) => (
                           <td
                             key={cellIndex}
-                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
+                            className="px-6 py-4 whitespace-nowrap text-sm text-foreground"
                           >
                             {!isNaN(Number(cell.replace(/,/g, ""))) ? (
                               <span
-                                className={`font-medium ${cellIndex === 1 ? "text-blue-600 dark:text-blue-400" : "text-gray-800 dark:text-gray-200"}`}
+                                className={`font-medium ${cellIndex === 1 ? "text-primary" : "text-foreground"}`}
                               >
                                 {formatNumber(cell)}
                               </span>
@@ -157,7 +157,7 @@ export default function DataPage() {
               </div>
             ) : (
               <div className="p-6 text-center">
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-muted-foreground">
                   No data available
                 </p>
               </div>
