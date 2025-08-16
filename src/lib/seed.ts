@@ -143,7 +143,14 @@ function escapeSql(str: string): string {
 }
 
 async function seed(): Promise<void> {
-  const client = new Client();
+  const client = new Client({
+    host: process.env.PGHOST,
+    port: process.env.PGPORT ? parseInt(process.env.PGPORT) : undefined,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    database: process.env.PGDATABASE,
+    ssl: { rejectUnauthorized: false },
+  });
 
   try {
     await client.connect();
