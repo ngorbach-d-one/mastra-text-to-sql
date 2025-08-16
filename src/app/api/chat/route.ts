@@ -35,11 +35,23 @@ export async function POST(request: Request) {
 
     (async () => {
       try {
-        const reader = stream.textStream;
-        for await (const chunk of reader) {
+        for await (const chunk of stream.fullStream) {
           try {
-            const formattedChunk = `data: ${JSON.stringify({ type: "text", value: chunk })}\n\n`;
-            await writer.write(encoder.encode(formattedChunk));
+            if (chunk.type === "text-delta") {
+              const formattedChunk = `data: ${JSON.stringify({ type: "text", value: chunk.textDelta })}\n\n`;
+              await writer.write(encoder.encode(formattedChunk));
+            } else if (chunk.type === "error") {
+              const message =
+                chunk.error instanceof Error
+                  ? chunk.error.message
+                  : String(chunk.error);
+              await writer.write(
+                encoder.encode(
+                  `data: ${JSON.stringify({ type: "error", value: message })}\n\n`
+                )
+              );
+              break;
+            }
           } catch (writeError) {
             console.log(
               "Write error (client likely disconnected):",

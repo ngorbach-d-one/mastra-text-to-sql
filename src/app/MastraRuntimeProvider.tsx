@@ -61,6 +61,13 @@ const MastraModelAdapter: ChatModelAdapter = {
                 content: [{ type: "text", text }],
               };
             } else if (parsed.type === "error") {
+              if (
+                typeof parsed.value === "string" &&
+                parsed.value.includes("Unhandled chunk type:")
+              ) {
+                console.warn(parsed.value);
+                continue;
+              }
               throw new Error(parsed.value || "Unknown error");
             }
           } catch (e) {
