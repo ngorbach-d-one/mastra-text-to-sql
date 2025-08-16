@@ -2,34 +2,106 @@ import { openai } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
 import * as tools from "../tools/population-info";
 import { LanguageModelV1 } from "@ai-sdk/provider";
+import { Client } from "pg";
+
+const TABLES = ["customers", "employees", "order_items", "orders", "products"];
+
+const FALLBACK_SCHEMA = `customers (
+      customer_id BIGINT,
+      email TEXT,
+      full_name TEXT,
+      created_at TIMESTAMP WITH TIME ZONE
+    );
+    employees (
+      employee_id BIGINT,
+      first_name TEXT,
+      last_name TEXT,
+      email TEXT,
+      hire_date TIMESTAMP WITH TIME ZONE,
+      salary NUMERIC
+    );
+    order_items (
+      order_id BIGINT,
+      product_id BIGINT,
+      qty INTEGER,
+      unit_price NUMERIC
+    );
+    orders (
+      order_id BIGINT,
+      customer_id BIGINT,
+      order_date TIMESTAMP WITH TIME ZONE,
+      status TEXT
+    );
+    products (
+      product_id BIGINT,
+      name TEXT,
+      price NUMERIC,
+      created_at TIMESTAMP WITH TIME ZONE
+    );`;
+
+const getDatabaseSchema = async () => {
+  if (!process.env.PGHOST) {
+    return FALLBACK_SCHEMA;
+  }
+
+  const client = new Client({
+    host: process.env.PGHOST,
+    port: process.env.PGPORT ? parseInt(process.env.PGPORT, 10) : undefined,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    database: process.env.PGDATABASE,
+    ssl: { rejectUnauthorized: false },
+  });
+
+  try {
+    await client.connect();
+    const { rows } = await client.query(
+      `SELECT table_name, column_name, data_type, character_maximum_length, numeric_precision, numeric_scale
+       FROM information_schema.columns
+       WHERE table_schema = 'public' AND table_name = ANY($1::text[])
+       ORDER BY table_name, ordinal_position;`,
+      [TABLES],
+    );
+
+    const schemaByTable = rows.reduce<Record<string, string[]>>((acc, row) => {
+      let type = row.data_type.toUpperCase();
+      if (row.character_maximum_length) {
+        type += `(${row.character_maximum_length})`;
+      } else if (row.numeric_precision) {
+        type += `(${row.numeric_precision}${row.numeric_scale !== null ? `, ${row.numeric_scale}` : ""})`;
+      }
+      if (!acc[row.table_name]) {
+        acc[row.table_name] = [];
+      }
+      acc[row.table_name].push(`      ${row.column_name} ${type}`);
+      return acc;
+    }, {});
+
+    return (
+      TABLES.map(
+        (table) => `${table} (\n${(schemaByTable[table] || []).join(",\n")}\n    )`,
+      ).join(";\n") + ";"
+    );
+  } catch (err) {
+    console.error("Failed to fetch database schema:", err);
+    return FALLBACK_SCHEMA;
+  } finally {
+    await client.end();
+  }
+};
+
+const schema = await getDatabaseSchema();
 
 export const sqlAgent = new Agent({
   name: "SQL Agent",
-  instructions: `You are a SQL (PostgreSQL) expert for a city population database. Generate and execute queries that answer user questions about city data.
+  instructions: `You are a SQL (PostgreSQL) expert for a customer orders database. Generate and execute queries that answer user questions about customers, employees, orders, order items, and products.
 
     DATABASE SCHEMA:
-    cities (
-      id SERIAL PRIMARY KEY,
-      popularity INTEGER,
-      geoname_id INTEGER,
-      name_en VARCHAR(255),
-      country_code VARCHAR(10),
-      population BIGINT,
-      latitude DECIMAL(10, 6),
-      longitude DECIMAL(10, 6),
-      country VARCHAR(255),
-      region VARCHAR(255),
-      continent VARCHAR(255), /* Africa, Asia, Europe, North America, Oceania, South America, Antarctica */
-      code2 VARCHAR(10),
-      code VARCHAR(10),
-      province VARCHAR(255)
-    );
+${schema}
 
     QUERY GUIDELINES:
     - Only retrieval queries are allowed
     - For string comparisons, use: LOWER(field) ILIKE LOWER('%term%')
-    - Use "United Kingdom" for UK and "United States" for USA
-    - This dataset contains only current information, not historical data
     - Always return at least two columns for visualization purposes
     - If a user asks for a single column, include a count of that column
     - Format rates as decimals (e.g., 0.1 for 10%)
@@ -42,7 +114,7 @@ export const sqlAgent = new Agent({
     - Use consistent capitalization for SQL keywords
 
     WORKFLOW:
-    1. Analyze the user's question about city data
+    1. Analyze the user's question about the data
     2. Generate an appropriate SQL query
     3. Execute the query using the Execute SQL Query tool
     4. Return results in markdown format with these sections:
