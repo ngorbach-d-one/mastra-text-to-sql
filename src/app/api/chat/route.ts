@@ -35,11 +35,18 @@ export async function POST(request: Request) {
 
     (async () => {
       try {
-        const reader = stream.textStream;
+        const reader = stream.fullStream;
         for await (const chunk of reader) {
           try {
-            const formattedChunk = `data: ${JSON.stringify({ type: "text", value: chunk })}\n\n`;
-            await writer.write(encoder.encode(formattedChunk));
+            if (chunk.type === "text-delta") {
+              const formattedChunk = `data: ${JSON.stringify({ type: "text", value: chunk.textDelta })}\n\n`;
+              await writer.write(encoder.encode(formattedChunk));
+            } else if (chunk.type === "error") {
+              const message =
+                chunk.error instanceof Error ? chunk.error.message : String(chunk.error);
+              const errorChunk = `data: ${JSON.stringify({ type: "error", value: message })}\n\n`;
+              await writer.write(encoder.encode(errorChunk));
+            }
           } catch (writeError) {
             console.log(
               "Write error (client likely disconnected):",
@@ -60,6 +67,11 @@ export async function POST(request: Request) {
           error.message.includes("ResponseAborted")
         ) {
           console.log("Client disconnected:", error);
+        } else if (
+          error instanceof Error &&
+          error.message.startsWith("Unhandled chunk type:")
+        ) {
+          console.warn("Ignoring unhandled chunk:", error.message);
         } else {
           console.error("Stream processing error:", error);
 
