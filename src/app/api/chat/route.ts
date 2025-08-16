@@ -35,18 +35,33 @@ export async function POST(request: Request) {
 
     (async () => {
       try {
-        const reader = stream.textStream;
-        for await (const chunk of reader) {
-          try {
-            const formattedChunk = `data: ${JSON.stringify({ type: "text", value: chunk })}\n\n`;
-            await writer.write(encoder.encode(formattedChunk));
-          } catch (writeError) {
-            console.log(
-              "Write error (client likely disconnected):",
-              writeError
-            );
-            break;
+        for await (const part of stream.fullStream) {
+          if (part.type === "text-delta") {
+            try {
+              await writer.write(
+                encoder.encode(
+                  `data: ${JSON.stringify({ type: "text", value: part.textDelta })}\n\n`
+                )
+              );
+            } catch (writeError) {
+              console.log(
+                "Write error (client likely disconnected):",
+                writeError
+              );
+              break;
+            }
+          } else if (part.type === "error") {
+            try {
+              await writer.write(
+                encoder.encode(
+                  `data: ${JSON.stringify({ type: "error", value: part.error?.message || "Unknown error" })}\n\n`
+                )
+              );
+            } catch (writeError) {
+              console.log("Error writing error message:", writeError);
+            }
           }
+          // ignore other chunk types such as stream-start
         }
 
         try {
@@ -62,11 +77,12 @@ export async function POST(request: Request) {
           console.log("Client disconnected:", error);
         } else {
           console.error("Stream processing error:", error);
-
           try {
+            const message =
+              error instanceof Error ? error.message : String(error);
             await writer.write(
               encoder.encode(
-                `data: ${JSON.stringify({ type: "error", value: error instanceof Error ? error.message : String(error) })}\n\n`
+                `data: ${JSON.stringify({ type: "error", value: message })}\n\n`
               )
             );
           } catch (writeError) {
