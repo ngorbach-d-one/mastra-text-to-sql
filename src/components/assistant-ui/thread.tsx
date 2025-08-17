@@ -152,20 +152,18 @@ const ThreadWelcomeSuggestions: FC = () => {
 const Composer: FC = () => {
   return (
     <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-wrap items-end rounded-lg border bg-inherit px-2.5 shadow-sm transition-colors ease-in">
-      <ComposerMic />
       <ComposerPrimitive.Input
         rows={1}
         autoFocus
         placeholder="Write a message..."
         className="placeholder:text-muted-foreground max-h-40 flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
       />
-      <ComposerActions />
+      <ComposerAction />
     </ComposerPrimitive.Root>
   );
 };
 
-
-const ComposerMic: FC = () => {
+const ComposerAction: FC = () => {
   const composerRuntime = useComposerRuntime();
   const [listening, setListening] = useState(false);
 
@@ -218,22 +216,6 @@ const ComposerMic: FC = () => {
     setListening(false);
   };
 
-  return (
-    <TooltipIconButton
-      tooltip={listening ? "Stop recording" : "Start recording"}
-      variant="outline"
-      onClick={listening ? stopListening : startListening}
-      className={cn(
-        "my-2.5 size-8 p-2 transition-opacity ease-in",
-        listening && "text-red-500",
-      )}
-    >
-      {listening ? <SquareIcon /> : <MicIcon />}
-    </TooltipIconButton>
-  );
-};
-
-const ComposerActions: FC = () => {
   return (
     <>
       <TooltipIconButton
