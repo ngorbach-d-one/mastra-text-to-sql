@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "tsx src/lib/seed"
+    "seed": "tsx src/lib/seed",
+    "mcp": "tsx src/mastra/mcp/sql-server.ts"
   },
   "dependencies": {
     "@ai-sdk/azure": "^1.0.15",
@@ -15,6 +16,7 @@
     "@assistant-ui/react-ai-sdk": "^0.8.0",
     "@assistant-ui/react-markdown": "^0.8.0",
     "@mastra/core": "0.7.0",
+    "@modelcontextprotocol/sdk": "^1.17.3",
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
     "ai": "4.2.9",
