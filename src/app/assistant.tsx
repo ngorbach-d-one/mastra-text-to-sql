@@ -18,7 +18,7 @@ export const Assistant = () => {
       <div className="flex h-full">
         <aside
           className={cn(
-            "border-r bg-background transition-all duration-300 overflow-hidden",
+            "border-r bg-muted transition-all duration-300 overflow-hidden",
             open ? "w-64 p-4" : "w-0 p-0",
           )}
         >
