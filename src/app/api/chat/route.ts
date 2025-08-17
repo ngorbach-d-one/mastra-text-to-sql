@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import type { CoreMessage } from "@mastra/core";
+
+type ChatMessage = Extract<CoreMessage, { role: "user" | "assistant" | "system" }>;
 import { sqlAgent } from "../../../mastra/agents/sql";
 
 export const runtime = "nodejs";
@@ -18,9 +21,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const thread = messages
+    const thread: ChatMessage[] = messages
       .map((m: { role: string; content: { text: string }[] }) => ({
-        role: m.role,
+        role: m.role as ChatMessage["role"],
         content: m.content
           .map((c) => c.text)
           .filter((t): t is string => typeof t === "string" && t.trim() !== "")
