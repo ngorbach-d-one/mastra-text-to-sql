@@ -8,26 +8,37 @@ export async function POST(request: Request) {
   const { messages } = await request.json();
 
   try {
-    const {
-      content: [{ text: query }],
-    } = messages[messages.length - 1];
-
-    if (!query || typeof query !== "string") {
+    if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
         {
           error:
-            "Invalid request. Please provide a natural language query as a string.",
+            "Invalid request. Please provide a conversation as an array of messages.",
         },
         { status: 400 }
       );
     }
 
-    const stream = await sqlAgent.stream([
-      {
-        role: "user",
-        content: query,
-      },
-    ]);
+    const thread = messages
+      .map((m: { role: string; content: { text: string }[] }) => ({
+        role: m.role,
+        content: m.content
+          .map((c) => c.text)
+          .filter((t): t is string => typeof t === "string" && t.trim() !== "")
+          .join(" "),
+      }))
+      .filter((m) => m.content && m.content.length > 0);
+
+    if (thread.length === 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Invalid request. Please provide at least one message with text content.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const stream = await sqlAgent.stream(thread);
 
     const encoder = new TextEncoder();
     const responseStream = new TransformStream();
