@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import BarChart from "@/components/bar-chart";
 
 type TableData = {
   headers: string[];
@@ -12,6 +13,21 @@ export default function DataPage() {
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const chartData = useMemo(() => {
+    if (!tableData) return [];
+    if (!tableData.rows.length) return [];
+    const rows = tableData.rows;
+    const numColIndex = tableData.headers.findIndex((_, idx) =>
+      rows.some((row) => !isNaN(Number(row[idx].replace(/,/g, ""))))
+    );
+    if (numColIndex === -1) return [];
+    const labelIndex = numColIndex === 0 ? 1 : 0;
+    return rows.slice(0, 10).map((row) => ({
+      label: row[labelIndex],
+      value: Number(row[numColIndex].replace(/,/g, "")),
+    }));
+  }, [tableData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -106,7 +122,7 @@ export default function DataPage() {
                 <p className="text-muted-foreground">{error}</p>
               </div>
             ) : tableData && tableData.headers.length > 0 ? (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto p-4">
                 <table className="min-w-full divide-y divide-border">
                   <thead>
                     <tr className="bg-muted">
@@ -147,6 +163,11 @@ export default function DataPage() {
                     ))}
                   </tbody>
                 </table>
+                {chartData.length > 0 && (
+                  <div className="mt-8">
+                    <BarChart data={chartData} />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="p-6 text-center">
