@@ -14,12 +14,12 @@ export default function Home() {
             width={40}
             height={40}
           />
-          <h1 className="ml-30 text-2xl font-semibold">Chat with ABS Data</h1>
+          <h1 className="ml-25 text-2xl font-semibold">Chat with ABS Data</h1>
         </div>
         <div className="flex items-center gap-4">
           <Link
             href="/data"
-            className="mr-30 px-4 py-2 text-sm bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-md transition-colors"
+            className="mr-25 px-4 py-2 text-sm bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-md transition-colors"
           >
             View Dataset
           </Link>

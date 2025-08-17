@@ -183,14 +183,18 @@ const ComposerAction: FC = () => {
 
   const startListening = () => {
     const SpeechRecognitionConstructor =
-      (window as unknown as {
-        SpeechRecognition?: new () => SpeechRecognitionInstance;
-        webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
-      }).SpeechRecognition ||
-      (window as unknown as {
-        SpeechRecognition?: new () => SpeechRecognitionInstance;
-        webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
-      }).webkitSpeechRecognition;
+      (
+        window as unknown as {
+          SpeechRecognition?: new () => SpeechRecognitionInstance;
+          webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+        }
+      ).SpeechRecognition ||
+      (
+        window as unknown as {
+          SpeechRecognition?: new () => SpeechRecognitionInstance;
+          webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+        }
+      ).webkitSpeechRecognition;
 
     if (!SpeechRecognitionConstructor) return;
 
@@ -201,9 +205,7 @@ const ComposerAction: FC = () => {
         .map((r) => r[0].transcript)
         .join(" ");
       const prev = composerRuntime.getState().text;
-      composerRuntime.setText(
-        `${prev ? prev + " " : ""}${transcript}`.trim(),
-      );
+      composerRuntime.setText(`${prev ? prev + " " : ""}${transcript}`.trim());
     };
     recognition.onend = () => setListening(false);
     recognition.start();
@@ -224,7 +226,7 @@ const ComposerAction: FC = () => {
         onClick={listening ? stopListening : startListening}
         className={cn(
           "my-2.5 size-8 p-2 transition-opacity ease-in",
-          listening && "text-red-500",
+          listening && "text-red-500"
         )}
       >
         {listening ? <SquareIcon /> : <MicIcon />}
@@ -347,7 +349,7 @@ const AssistantMessage: FC = () => {
   return (
     <MessagePrimitive.Root className="grid grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] relative w-full max-w-[var(--thread-max-width)] py-4">
       <Image
-        src="/purple-pup.png"
+        src="/purple-pup-avatar.png"
         alt="AI avatar"
         width={40}
         height={40}
