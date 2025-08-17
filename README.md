@@ -41,6 +41,9 @@ PGPORT=5432
 PGUSER=your_database_user
 PGPASSWORD=your_database_password
 PGDATABASE=your_database_name
+
+# MCP Server
+NEXT_PUBLIC_MCP_WS_URL=ws://localhost:3030
 ```
 
 ### Installation
