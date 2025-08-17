@@ -346,6 +346,13 @@ const AssistantMessage: FC = () => {
 
   return (
     <MessagePrimitive.Root className="grid grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] relative w-full max-w-[var(--thread-max-width)] py-4">
+      <Image
+        src="/purple-pup.png"
+        alt="AI avatar"
+        width={40}
+        height={40}
+        className="col-start-1 row-start-1 row-span-2 mr-3 rounded-full"
+      />
       <div className="bg-muted text-foreground max-w-[calc(var(--thread-max-width)*0.8)] break-words leading-7 col-span-2 col-start-2 row-start-1 my-1.5 rounded-3xl px-5 py-2.5">
         <MessagePrimitive.Content components={{ Text: MarkdownText }} />
         {chartData.length > 0 && (
