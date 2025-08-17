@@ -7,6 +7,11 @@ interface UserInfo {
   name: string;
 }
 
+interface Claim {
+  typ: string;
+  val: string;
+}
+
 let cachedUser: UserInfo | null = null;
 
 export function useUserInitials() {
@@ -21,8 +26,23 @@ export function useUserInitials() {
         const res = await fetch("/.auth/me");
         if (res.ok) {
           const data = await res.json();
-          const userDetails =
-            data?.clientPrincipal?.userDetails || data?.userDetails || "";
+          let userDetails = "";
+          if (Array.isArray(data)) {
+            const identity: {
+              user_claims?: Claim[];
+              user_id?: string;
+            } | undefined = data[0];
+            userDetails =
+              identity?.user_claims?.find(
+                (c: Claim) => c.typ === "preferred_username"
+              )?.val ??
+              identity?.user_claims?.find((c: Claim) => c.typ === "name")?.val ??
+              identity?.user_id ??
+              "";
+          } else {
+            userDetails =
+              data?.clientPrincipal?.userDetails || data?.userDetails || "";
+          }
           if (userDetails) {
             setName(userDetails);
             const parts = userDetails
