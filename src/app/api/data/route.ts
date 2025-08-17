@@ -23,7 +23,7 @@ pool.on("error", (err) => {
 
 export async function GET() {
   try {
-    const sqlQuery = "SELECT * FROM cities ORDER BY population DESC;";
+    const sqlQuery = "SELECT * FROM order_items ORDER BY qty DESC;";
 
     try {
       const client = await pool.connect();

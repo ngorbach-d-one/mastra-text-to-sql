@@ -7,7 +7,7 @@ export default function Home() {
       <header className="w-full py-4 px-6 mb-8 flex fixed top-0 z-50 justify-center items-center bg-background border-b shadow-sm">
         <div className="w-full max-w-5xl flex justify-between items-center">
           <h1 className="text-2xl font-semibold text-foreground">
-            Mastra Text-to-SQL Demo: World Cities Population
+            Chat with ABS Data
           </h1>
           <Link
             href="/data"

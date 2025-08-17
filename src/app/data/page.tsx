@@ -59,16 +59,13 @@ export default function DataPage() {
       <header className="relative py-8 mb-8 border-b border-border">
         <div className="container mx-auto px-4 relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold text-center text-primary">
-            City Population Database
+            ABS Data Overview
           </h1>
           <p className="text-center text-muted-foreground mt-2 max-w-2xl mx-auto">
-            Complete database of city population information
+            Complete database of ABS information
           </p>
           <div className="mt-6 text-center">
-            <Link
-              href="/"
-              className="text-primary hover:underline"
-            >
+            <Link href="/" className="text-primary hover:underline">
               ← Back to Chat
             </Link>
           </div>
@@ -128,11 +125,7 @@ export default function DataPage() {
                     {tableData.rows.map((row, rowIndex) => (
                       <tr
                         key={rowIndex}
-                        className={
-                          rowIndex % 2 === 0
-                            ? "bg-card"
-                            : "bg-muted"
-                        }
+                        className={rowIndex % 2 === 0 ? "bg-card" : "bg-muted"}
                       >
                         {row.map((cell, cellIndex) => (
                           <td
@@ -157,9 +150,7 @@ export default function DataPage() {
               </div>
             ) : (
               <div className="p-6 text-center">
-                <p className="text-muted-foreground">
-                  No data available
-                </p>
+                <p className="text-muted-foreground">No data available</p>
               </div>
             )}
           </div>
