@@ -87,7 +87,15 @@ export function UserAvatar() {
       </div>
       {showPopup && (
         <div className="absolute right-0 mt-2 bg-white text-purple-700 border border-purple-200 rounded-md shadow-md px-3 py-1 text-xs z-50">
-          {name || "Anonymous"}
+          <div>{name || "Anonymous"}</div>
+          <button
+            className="mt-1 text-left text-purple-700 hover:underline"
+            onClick={() => {
+              window.location.href = "/.auth/logout";
+            }}
+          >
+            Logout
+          </button>
         </div>
       )}
     </div>
