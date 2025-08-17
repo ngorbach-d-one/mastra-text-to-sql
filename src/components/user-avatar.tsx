@@ -81,16 +81,16 @@ export function UserAvatar() {
   return (
     <div className="relative">
       <div
-        className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium cursor-pointer"
+        className="w-8 h-8 rounded-full bg-white text-purple-700 flex items-center justify-center text-sm font-medium cursor-pointer"
         onClick={() => setShowPopup((prev) => !prev)}
       >
         {initials}
       </div>
       {showPopup && (
-        <div className="absolute right-0 mt-2 bg-card text-foreground border border-border rounded-md shadow-md px-3 py-1 text-xs z-50">
+        <div className="absolute right-0 mt-2 bg-white text-purple-700 border border-purple-200 rounded-md shadow-md px-3 py-1 text-xs z-50">
           <div>{name || "Anonymous"}</div>
           <button
-            className="mt-1 text-left text-primary hover:underline"
+            className="mt-1 text-left text-purple-700 hover:underline"
             onClick={() => {
               window.location.href = "/.auth/logout";
             }}

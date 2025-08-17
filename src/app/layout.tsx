@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Bank-Now Assistant",
-  description: "Bank-Now assistant for exploring ABS data",
+  title: "Bank-Now Assitant",
+  description: "Bank-Now Assistant for ABS Data",
 };
 
 export default function RootLayout({

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import BarChart from "@/components/bar-chart";
-import { Navbar } from "@/components/navbar";
 
 type TableData = {
   headers: string[];
@@ -82,7 +81,6 @@ export default function DataPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
       {/* Header with subtle border */}
       <header className="relative py-8 mb-8 border-b border-border">
         <div className="container mx-auto px-4 relative z-10">
