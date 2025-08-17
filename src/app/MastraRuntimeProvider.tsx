@@ -17,9 +17,10 @@ const MastraModelAdapter: ChatModelAdapter = {
       firstPart && firstPart.type === "text" ? firstPart.text : "";
 
     const client = new Client({ name: "web-ui", version: "1.0.0" });
-    const baseUrl =
-      process.env.NEXT_PUBLIC_MCP_URL || "http://localhost:3001/mcp";
-    const transport = new StreamableHTTPClientTransport(new URL(baseUrl));
+    const baseUrl = process.env.NEXT_PUBLIC_MCP_URL || "/mcp";
+    const transport = new StreamableHTTPClientTransport(
+      new URL(baseUrl, window.location.origin)
+    );
     await client.connect(transport);
 
     try {
