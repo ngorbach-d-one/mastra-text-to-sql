@@ -2,42 +2,15 @@ import { azure } from "@ai-sdk/azure";
 import { Agent } from "@mastra/core/agent";
 import * as tools from "../tools/population-info";
 import { Client } from "pg";
+import { readFileSync } from "fs";
 import type { LanguageModelV1 } from "ai";
 
 const TABLES = ["customers", "employees", "order_items", "orders", "products"];
 
-const FALLBACK_SCHEMA = `customers (
-      customer_id BIGINT,
-      email TEXT,
-      full_name TEXT,
-      created_at TIMESTAMP WITH TIME ZONE
-    );
-    employees (
-      employee_id BIGINT,
-      first_name TEXT,
-      last_name TEXT,
-      email TEXT,
-      hire_date TIMESTAMP WITH TIME ZONE,
-      salary NUMERIC
-    );
-    order_items (
-      order_id BIGINT,
-      product_id BIGINT,
-      qty INTEGER,
-      unit_price NUMERIC
-    );
-    orders (
-      order_id BIGINT,
-      customer_id BIGINT,
-      order_date TIMESTAMP WITH TIME ZONE,
-      status TEXT
-    );
-    products (
-      product_id BIGINT,
-      name TEXT,
-      price NUMERIC,
-      created_at TIMESTAMP WITH TIME ZONE
-    );`;
+const FALLBACK_SCHEMA = readFileSync(
+  new URL("./fallback-schema.sql", import.meta.url),
+  "utf8"
+);
 
 const getDatabaseSchema = async () => {
   if (!process.env.PGHOST) {
