@@ -19,7 +19,14 @@ const MastraModelAdapter: ChatModelAdapter = {
     const client = new Client({ name: "web-ui", version: "1.0.0" });
     const baseUrl = process.env.NEXT_PUBLIC_MCP_URL || "/mcp";
     const transport = new StreamableHTTPClientTransport(
-      new URL(baseUrl, window.location.origin)
+      new URL(baseUrl, window.location.origin),
+      {
+        requestInit: {
+          headers: {
+            Accept: "application/json, text/event-stream",
+          },
+        },
+      }
     );
     await client.connect(transport);
 
