@@ -24,7 +24,7 @@ export default function Home() {
           </Link>
         </div>
       </header>
-      <div className="w-full h-dvh px-6">
+      <div className="w-full h-dvh">
         <Assistant />
       </div>
     </main>
