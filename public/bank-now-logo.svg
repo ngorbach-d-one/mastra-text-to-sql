@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <circle cx="64" cy="64" r="64" fill="#8a2db0" />
+  <polygon points="96,128 128,128 128,96" fill="#8a2db0" />
+  <text x="64" y="54" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="28" fill="#ffffff">BANK</text>
+  <text x="64" y="94" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="28" fill="#ffeb3b">now</text>
+</svg>
