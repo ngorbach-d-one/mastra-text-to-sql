@@ -55,7 +55,8 @@ const MastraModelAdapter: ChatModelAdapter = {
 
     while (!done || queue.length > 0) {
       if (queue.length > 0) {
-        yield { content: [{ type: "text", text: queue.shift()! }] };
+        queue.length = 0;
+        yield { content: [{ type: "text", text: accumulated }] };
       } else {
         await new Promise((r) => setTimeout(r, 50));
       }
@@ -66,9 +67,8 @@ const MastraModelAdapter: ChatModelAdapter = {
       ? result.content.map((c) => ("text" in c ? c.text : "")).join("")
       : "";
     if (finalText.length > accumulated.length) {
-      yield {
-        content: [{ type: "text", text: finalText.slice(accumulated.length) }],
-      };
+      accumulated = finalText;
+      yield { content: [{ type: "text", text: accumulated }] };
     }
   },
 };
