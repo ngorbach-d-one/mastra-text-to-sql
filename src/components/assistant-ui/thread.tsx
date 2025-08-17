@@ -4,8 +4,10 @@ import {
   ComposerPrimitive,
   MessagePrimitive,
   ThreadPrimitive,
+  useMessage,
+  type TextContentPart,
 } from "@assistant-ui/react";
-import type { FC } from "react";
+import { useMemo, type FC } from "react";
 import {
   ArrowDownIcon,
   CheckIcon,
@@ -21,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import BarChart from "@/components/bar-chart";
 
 export const Thread: FC = () => {
   return (
@@ -226,10 +229,55 @@ const EditComposer: FC = () => {
 };
 
 const AssistantMessage: FC = () => {
+  const text = useMessage((m) =>
+    m.content
+      .filter((part): part is TextContentPart => part.type === "text")
+      .map((part) => part.text)
+      .join("\n\n"),
+  );
+
+  const chartData = useMemo(() => {
+    if (!text) return [];
+    const resultsSection = text.split("### Results")[1];
+    if (!resultsSection) return [];
+    const tableMatch = resultsSection.match(/((?:\|.*\|\n)+)/);
+    if (!tableMatch) return [];
+    const lines = tableMatch[1]
+      .trim()
+      .split("\n")
+      .filter((line) => line.trim().startsWith("|"));
+    if (lines.length < 2) return [];
+    const headers = lines[0]
+      .split("|")
+      .slice(1, -1)
+      .map((h) => h.trim());
+    const rows = lines.slice(2).map((line) =>
+      line
+        .split("|")
+        .slice(1, -1)
+        .map((cell) => cell.trim()),
+    );
+    if (!rows.length) return [];
+    const numColIndex = headers.findIndex((_, idx) =>
+      rows.some((row) => !isNaN(Number(row[idx].replace(/,/g, "")))),
+    );
+    if (numColIndex === -1) return [];
+    const labelIndex = numColIndex === 0 ? 1 : 0;
+    return rows.slice(0, 10).map((row) => ({
+      label: row[labelIndex],
+      value: Number(row[numColIndex].replace(/,/g, "")),
+    }));
+  }, [text]);
+
   return (
     <MessagePrimitive.Root className="grid grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] relative w-full max-w-[var(--thread-max-width)] py-4">
       <div className="bg-muted text-foreground max-w-[calc(var(--thread-max-width)*0.8)] break-words leading-7 col-span-2 col-start-2 row-start-1 my-1.5 rounded-3xl px-5 py-2.5">
         <MessagePrimitive.Content components={{ Text: MarkdownText }} />
+        {chartData.length > 0 && (
+          <div className="mt-4">
+            <BarChart data={chartData} />
+          </div>
+        )}
       </div>
 
       <AssistantActionBar />
