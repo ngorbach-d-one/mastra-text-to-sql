@@ -164,6 +164,7 @@ const Composer: FC = () => {
   );
 };
 
+
 const ComposerMic: FC = () => {
   const composerRuntime = useComposerRuntime();
   const [listening, setListening] = useState(false);
@@ -235,6 +236,18 @@ const ComposerMic: FC = () => {
 const ComposerActions: FC = () => {
   return (
     <>
+      <TooltipIconButton
+        tooltip={listening ? "Stop recording" : "Start recording"}
+        variant="outline"
+        onClick={listening ? stopListening : startListening}
+        className={cn(
+          "my-2.5 size-8 p-2 transition-opacity ease-in",
+          listening && "text-red-500",
+        )}
+      >
+        {listening ? <SquareIcon /> : <MicIcon />}
+      </TooltipIconButton>
+
       <ThreadPrimitive.If running={false}>
         <ComposerPrimitive.Send asChild>
           <TooltipIconButton

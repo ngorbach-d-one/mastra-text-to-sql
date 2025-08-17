@@ -5,10 +5,7 @@ import { MastraRuntimeProvider } from "@/app/MastraRuntimeProvider";
 import { Thread } from "@/components/assistant-ui/thread";
 import { ThreadList } from "@/components/assistant-ui/thread-list";
 import { cn } from "@/lib/utils";
-import {
-  PanelLeftCloseIcon,
-  PanelLeftOpenIcon,
-} from "lucide-react";
+import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 
 export const Assistant = () => {
   const [open, setOpen] = useState(false);
@@ -19,7 +16,7 @@ export const Assistant = () => {
         <aside
           className={cn(
             "border-r bg-muted transition-all duration-300 overflow-hidden h-[calc(100dvh-5rem)]",
-            open ? "mt-20 w-64 p-4" : "w-0 p-0",
+            open ? "mt-18 w-64 p-4" : "w-0 p-0"
           )}
         >
           {open && <ThreadList />}
@@ -31,9 +28,9 @@ export const Assistant = () => {
             aria-label={open ? "Close thread list" : "Open thread list"}
           >
             {open ? (
-              <PanelLeftCloseIcon className="h-4 w-4" />
+              <PanelLeftCloseIcon className="h-6 w-6" />
             ) : (
-              <PanelLeftOpenIcon className="h-4 w-4" />
+              <PanelLeftOpenIcon className="h-6 w-6" />
             )}
           </button>
           <Thread />
