@@ -91,11 +91,14 @@ const getDatabaseSchema = async () => {
   }
 };
 
-const schema = await getDatabaseSchema();
+let sqlAgent: Agent | undefined;
 
-export const sqlAgent = new Agent({
-  name: "SQL Agent",
-  instructions: `You are a SQL (PostgreSQL) expert for a customer orders database. Generate and execute queries that answer user questions about customers, employees, orders, order items, and products.
+async function createAgent() {
+  const schema = await getDatabaseSchema();
+
+  return new Agent({
+    name: "SQL Agent",
+    instructions: `You are a SQL (PostgreSQL) expert for a customer orders database. Generate and execute queries that answer user questions about customers, employees, orders, order items, and products.
 
     DATABASE SCHEMA:
 ${schema}
@@ -131,10 +134,18 @@ ${schema}
        ### Results
        [Query results in table format]
     `,
-  model: azure(
-    process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o",
-  ) as LanguageModelV1,
-  tools: {
-    executeSQLQuery: tools.populationInfo,
-  },
-});
+    model: azure(
+      process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o",
+    ) as LanguageModelV1,
+    tools: {
+      executeSQLQuery: tools.populationInfo,
+    },
+  });
+}
+
+export async function getSqlAgent(): Promise<Agent> {
+  if (!sqlAgent) {
+    sqlAgent = await createAgent();
+  }
+  return sqlAgent;
+}
