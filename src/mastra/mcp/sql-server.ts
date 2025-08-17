@@ -1,39 +1,87 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { WebSocketServer } from "ws";
 import { z } from "zod";
 import { sqlAgent } from "../agents/sql";
 
-// Create MCP server instance
-const server = new McpServer({
-  name: "sql-agent-server",
-  version: "1.0.0",
-});
+interface Transport {
+  start(): Promise<void>;
+  send(message: unknown): Promise<void>;
+  close(): Promise<void>;
+  onmessage?: (message: unknown) => void;
+  onerror?: (error: Error) => void;
+  onclose?: () => void;
+}
 
-// Register a tool that forwards questions to the SQL agent
-server.registerTool(
-  "ask-sql",
-  {
-    title: "SQL Agent",
-    description: "Ask questions against the customer orders database",
-    inputSchema: {
-      question: z.string(),
+function createServer() {
+  const server = new McpServer({
+    name: "sql-agent-server",
+    version: "1.0.0",
+  });
+
+  server.registerTool(
+    "ask-sql",
+    {
+      title: "SQL Agent",
+      description: "Ask questions against the customer orders database",
+      inputSchema: {
+        question: z.string(),
+      },
     },
-  },
-  async ({ question }) => {
-    const result = await sqlAgent.generate([
-      { role: "user", content: question },
-    ]);
+    async ({ question }) => {
+      const result = await sqlAgent.generate([
+        { role: "user", content: question },
+      ]);
 
-    return {
-      content: [{ type: "text", text: result.text }],
-    };
-  },
-);
+      return {
+        content: [{ type: "text", text: result.text }],
+      };
+    },
+  );
 
-// Start the server using stdio transport
+  return server;
+}
+
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
+  const wss = new WebSocketServer({ port: 3030 });
+
+  wss.on("connection", (socket) => {
+    const server = createServer();
+
+    const transport: Transport = {
+      async start() {
+        // no-op: connection already established
+      },
+      async send(message) {
+        socket.send(JSON.stringify(message));
+      },
+      async close() {
+        socket.close();
+      },
+    };
+
+    socket.on("message", (data) => {
+      try {
+        const msg = JSON.parse(data.toString());
+        transport.onmessage?.(msg);
+      } catch (err) {
+        transport.onerror?.(err as Error);
+      }
+    });
+
+    socket.on("close", () => {
+      transport.onclose?.();
+    });
+
+    socket.on("error", (err) => {
+      transport.onerror?.(err as Error);
+    });
+
+    server.connect(transport).catch((err) => {
+      console.error("MCP connection error", err);
+    });
+  });
+
+  console.log("MCP server listening on ws://localhost:3030");
 }
 
 main().catch((err) => {
