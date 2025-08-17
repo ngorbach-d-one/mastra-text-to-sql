@@ -30,10 +30,13 @@ A powerful application that converts natural language questions into SQL queries
 Create a `.env` file in the root directory with the following variables:
 
 ```
-# Azure OpenAI Configuration
+# Azure OpenAI Configuration (preferred)
 AZURE_API_KEY=your_azure_openai_api_key
 AZURE_RESOURCE_NAME=your_resource_name
 AZURE_DEPLOYMENT_NAME=your_deployment_name
+
+# OpenAI Configuration (fallback when Azure values are not set)
+OPENAI_API_KEY=your_openai_api_key
 
 # Database Configuration
 PGHOST=your_database_host

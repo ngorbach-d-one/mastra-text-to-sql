@@ -1,4 +1,5 @@
-import { azure } from "@ai-sdk/azure";
+import { createAzure } from "@ai-sdk/azure";
+import { openai } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
 import * as tools from "../tools/population-info";
 import { Client } from "pg";
@@ -91,11 +92,14 @@ const getDatabaseSchema = async () => {
   }
 };
 
-const schema = await getDatabaseSchema();
+let sqlAgent: Agent | undefined;
 
-export const sqlAgent = new Agent({
-  name: "SQL Agent",
-  instructions: `You are a SQL (PostgreSQL) expert for a customer orders database. Generate and execute queries that answer user questions about customers, employees, orders, order items, and products.
+async function createAgent() {
+  const schema = await getDatabaseSchema();
+
+  return new Agent({
+    name: "SQL Agent",
+    instructions: `You are a SQL (PostgreSQL) expert for a customer orders database. Generate and execute queries that answer user questions about customers, employees, orders, order items, and products.
 
     DATABASE SCHEMA:
 ${schema}
@@ -131,10 +135,35 @@ ${schema}
        ### Results
        [Query results in table format]
     `,
-  model: azure(
-    process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o",
-  ) as LanguageModelV1,
-  tools: {
-    executeSQLQuery: tools.populationInfo,
-  },
-});
+    model: (function getModel(): LanguageModelV1 {
+      if (
+        process.env.AZURE_API_KEY &&
+        process.env.AZURE_RESOURCE_NAME
+      ) {
+        const provider = createAzure({
+          apiKey: process.env.AZURE_API_KEY,
+          resourceName: process.env.AZURE_RESOURCE_NAME,
+        });
+        return provider(
+          process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o",
+        );
+      }
+      if (process.env.OPENAI_API_KEY) {
+        return openai(process.env.OPENAI_MODEL || "gpt-4o");
+      }
+      throw new Error(
+        "Missing Azure or OpenAI credentials. Set AZURE_API_KEY and AZURE_RESOURCE_NAME, or OPENAI_API_KEY.",
+      );
+    })(),
+    tools: {
+      executeSQLQuery: tools.populationInfo,
+    },
+  });
+}
+
+export async function getSqlAgent(): Promise<Agent> {
+  if (!sqlAgent) {
+    sqlAgent = await createAgent();
+  }
+  return sqlAgent;
+}
