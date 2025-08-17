@@ -97,7 +97,12 @@ const ThreadTitleGenerator: FC = () => {
         .then((res) => res.json())
         .then((data) => {
           if (data.title) {
-            threadItem.rename(data.title);
+            const title = data.title
+              .trim()
+              .split(/\s+/)
+              .slice(0, 5)
+              .join(" ");
+            threadItem.rename(title);
           }
         })
         .catch((err) =>

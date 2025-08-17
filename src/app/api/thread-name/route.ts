@@ -16,11 +16,16 @@ export async function POST(request: Request) {
   }
 
   const model = azure(process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o");
-  const prompt = `Create a short descriptive title for a conversation based on the following messages:\n${messages.join("\n")}`;
+  const prompt = `Create a short descriptive title of five words or fewer for a conversation based on the following messages:\n${messages.join("\n")}`;
 
   try {
     const { text } = await generateText({ model, prompt });
-    return NextResponse.json({ title: text.trim() });
+    const title = text
+      .trim()
+      .split(/\s+/)
+      .slice(0, 5)
+      .join(" ");
+    return NextResponse.json({ title });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ error: message }, { status: 500 });
