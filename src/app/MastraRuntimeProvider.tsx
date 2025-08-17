@@ -26,14 +26,46 @@ const MastraModelAdapter: ChatModelAdapter = {
     const question = last.content
       .map((c) => ("text" in c ? c.text : ""))
       .join("");
-    const result = await client.callTool({
-      name: "ask-sql",
-      arguments: { question },
-    });
-    const text = Array.isArray(result.content)
+
+    const queue: string[] = [];
+    let accumulated = "";
+    let done = false;
+
+    const resultPromise = client
+      .callTool(
+        { name: "ask-sql", arguments: { question } },
+        undefined,
+        {
+          onprogress: ({ message }: { message?: string }) => {
+            if (typeof message === "string") {
+              queue.push(message);
+              accumulated += message;
+            }
+          },
+        },
+      )
+      .then((res) => {
+        done = true;
+        return res;
+      });
+
+    while (!done || queue.length > 0) {
+      if (queue.length > 0) {
+        yield { content: [{ type: "text", text: queue.shift()! }] };
+      } else {
+        await new Promise((r) => setTimeout(r, 50));
+      }
+    }
+
+    const result = await resultPromise;
+    const finalText = Array.isArray(result.content)
       ? result.content.map((c) => ("text" in c ? c.text : "")).join("")
       : "";
-    yield { content: [{ type: "text", text }] };
+    if (finalText.length > accumulated.length) {
+      yield {
+        content: [{ type: "text", text: finalText.slice(accumulated.length) }],
+      };
+    }
   },
 };
 
