@@ -2,13 +2,20 @@
 
 import { useEffect, useState } from "react";
 
-export function UserAvatar() {
-  const [initials, setInitials] = useState<string>("A");
-  const [name, setName] = useState<string>("");
-  const [checked, setChecked] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
+interface UserInfo {
+  initials: string;
+  name: string;
+}
+
+let cachedUser: UserInfo | null = null;
+
+export function useUserInitials() {
+  const [initials, setInitials] = useState<string>(cachedUser?.initials ?? "A");
+  const [name, setName] = useState<string>(cachedUser?.name ?? "");
+  const [checked, setChecked] = useState<boolean>(Boolean(cachedUser));
 
   useEffect(() => {
+    if (cachedUser) return;
     async function fetchUser() {
       try {
         const res = await fetch("/.auth/me");
@@ -26,16 +33,27 @@ export function UserAvatar() {
               .map((p: string) => p[0]?.toUpperCase())
               .join("");
             setInitials(init || "A");
+            cachedUser = { initials: init || "A", name: userDetails };
           }
         }
       } catch {
         // ignore errors
       } finally {
         setChecked(true);
+        if (!cachedUser) {
+          cachedUser = { initials: "A", name: "" };
+        }
       }
     }
     fetchUser();
   }, []);
+
+  return { initials, name, checked };
+}
+
+export function UserAvatar() {
+  const { initials, name, checked } = useUserInitials();
+  const [showPopup, setShowPopup] = useState(false);
 
   if (!checked) return null;
 
