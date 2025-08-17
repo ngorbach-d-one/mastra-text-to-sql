@@ -1,6 +1,7 @@
 import { azure } from "@ai-sdk/azure";
 import { Agent } from "@mastra/core/agent";
 import * as tools from "../tools/population-info";
+
 import { readFileSync } from "fs";
 import type { LanguageModelV1 } from "ai";
 
