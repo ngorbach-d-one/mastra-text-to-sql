@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebSocketServer } from "ws";
 import { z } from "zod";
