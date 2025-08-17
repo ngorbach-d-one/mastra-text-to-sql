@@ -24,7 +24,7 @@ export const Assistant = () => {
         <div className="relative flex-1">
           <button
             onClick={() => setOpen((o) => !o)}
-            className="absolute left-0 top-20 z-50 rounded-md border p-1 bg-background hover:bg-muted"
+            className="absolute left-0 top-18 z-52 rounded-md border p-1 bg-background hover:bg-muted"
             aria-label={open ? "Close thread list" : "Open thread list"}
           >
             {open ? (
