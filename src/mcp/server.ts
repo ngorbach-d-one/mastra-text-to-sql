@@ -17,15 +17,22 @@ async function start() {
       inputSchema: { query: z.string() },
     },
     async ({ query }) => {
-      const agent = await getSqlAgent();
-      const result = (await agent.generate([
-        { role: "user", content: query },
-      ])) as unknown;
-      const text =
-        typeof result === "string"
-          ? result
-          : (result as { content?: Array<{ text?: string }> }).content?.[0]?.text || "";
-      return { content: [{ type: "text", text }] };
+      try {
+        const agent = await getSqlAgent();
+        const result = (await agent.generate([
+          { role: "user", content: query },
+        ])) as unknown;
+        const text =
+          typeof result === "string"
+            ? result
+            : (result as { content?: Array<{ text?: string }> }).content?.[0]?.text || "";
+        return { content: [{ type: "text", text }] };
+      } catch (error) {
+        console.error("sqlChat tool error:", error);
+        const message =
+          error instanceof Error ? error.message : "Unexpected error running sqlChat";
+        return { content: [{ type: "text", text: `Error: ${message}` }] };
+      }
     }
   );
 
