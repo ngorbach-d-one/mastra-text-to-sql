@@ -5,9 +5,10 @@ import {
   MessagePrimitive,
   ThreadPrimitive,
   useMessage,
+  useComposerRuntime,
   type TextContentPart,
 } from "@assistant-ui/react";
-import { useMemo, type FC } from "react";
+import { useMemo, useRef, useState, type FC } from "react";
 import Image from "next/image";
 import {
   ArrowDownIcon,
@@ -18,6 +19,8 @@ import {
   PencilIcon,
   RefreshCwIcon,
   SendHorizontalIcon,
+  MicIcon,
+  SquareIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -161,8 +164,72 @@ const Composer: FC = () => {
 };
 
 const ComposerAction: FC = () => {
+  const composerRuntime = useComposerRuntime();
+  const [listening, setListening] = useState(false);
+
+  interface SpeechRecognitionEvent {
+    results: Array<{ 0: { transcript: string } }>;
+  }
+
+  interface SpeechRecognitionInstance {
+    lang: string;
+    start: () => void;
+    stop: () => void;
+    onresult: ((event: SpeechRecognitionEvent) => void) | null;
+    onend: (() => void) | null;
+  }
+
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+
+  const startListening = () => {
+    const SpeechRecognitionConstructor =
+      (window as unknown as {
+        SpeechRecognition?: new () => SpeechRecognitionInstance;
+        webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+      }).SpeechRecognition ||
+      (window as unknown as {
+        SpeechRecognition?: new () => SpeechRecognitionInstance;
+        webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+      }).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionConstructor) return;
+
+    const recognition = new SpeechRecognitionConstructor();
+    recognition.lang = "en-US";
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = Array.from(event.results)
+        .map((r) => r[0].transcript)
+        .join(" ");
+      const prev = composerRuntime.getState().text;
+      composerRuntime.setText(
+        `${prev ? prev + " " : ""}${transcript}`.trim(),
+      );
+    };
+    recognition.onend = () => setListening(false);
+    recognition.start();
+    recognitionRef.current = recognition;
+    setListening(true);
+  };
+
+  const stopListening = () => {
+    recognitionRef.current?.stop();
+    setListening(false);
+  };
+
   return (
     <>
+      <TooltipIconButton
+        tooltip={listening ? "Stop recording" : "Start recording"}
+        variant="outline"
+        onClick={listening ? stopListening : startListening}
+        className={cn(
+          "my-2.5 size-8 p-2 transition-opacity ease-in",
+          listening && "text-red-500",
+        )}
+      >
+        {listening ? <SquareIcon /> : <MicIcon />}
+      </TooltipIconButton>
+
       <ThreadPrimitive.If running={false}>
         <ComposerPrimitive.Send asChild>
           <TooltipIconButton

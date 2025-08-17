@@ -9,6 +9,7 @@ A powerful application that converts natural language questions into SQL queries
 - **Dark Mode Support**: Professional UI with both light and dark mode
 - **Example Queries**: Pre-built example queries to help users get started
 - **Formatted Results**: Numbers displayed with thousands separators for better readability
+- **Voice Input**: Speak your query using built-in microphone support
 
 ## Technology Stack
 
