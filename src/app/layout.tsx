@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mastra Text to SQL",
-  description: "Cities Population Information",
+  title: "Bank-Now Assitant",
+  description: "Bank-Now Assistant for ABS Data",
 };
 
 export default function RootLayout({

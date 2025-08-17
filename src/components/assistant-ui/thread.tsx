@@ -75,11 +75,7 @@ const ThreadTitleGenerator: FC = () => {
     if (!runtime) return;
     const threadItem = runtime.threads.mainItem;
     const title = threadItem.getState().title;
-    if (
-      messages.length > 0 &&
-      !title &&
-      !generatedRef.current.has(threadId)
-    ) {
+    if (messages.length > 0 && !title && !generatedRef.current.has(threadId)) {
       generatedRef.current.add(threadId);
       const userMessages = messages
         .filter((m) => m.role === "user")
@@ -99,15 +95,14 @@ const ThreadTitleGenerator: FC = () => {
           if (data.title) {
             const title = data.title
               .trim()
+              .replace(/^['"]|['"]$/g, "")
               .split(/\s+/)
               .slice(0, 5)
               .join(" ");
             threadItem.rename(title);
           }
         })
-        .catch((err) =>
-          console.error("Failed to generate thread title", err),
-        );
+        .catch((err) => console.error("Failed to generate thread title", err));
     }
   }, [runtime, messages, threadId]);
 
