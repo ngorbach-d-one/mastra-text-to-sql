@@ -6,77 +6,38 @@ import {
   useLocalRuntime,
   type ChatModelAdapter,
 } from "@assistant-ui/react";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 const MastraModelAdapter: ChatModelAdapter = {
-  async *run({ messages, abortSignal }) {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messages,
-      }),
-      signal: abortSignal,
-    });
+  async *run({ messages }) {
+    const last = messages[messages.length - 1];
+    const firstPart = last?.content?.[0];
+    const query =
+      firstPart && firstPart.type === "text" ? firstPart.text : "";
 
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) {
-      throw new Error("Failed to get stream reader");
-    }
-
-    const decoder = new TextDecoder();
-    let text = "";
-    let buffer = "";
+    const client = new Client({ name: "web-ui", version: "1.0.0" });
+    const baseUrl =
+      process.env.NEXT_PUBLIC_MCP_URL || "http://localhost:3001/mcp";
+    const transport = new StreamableHTTPClientTransport(new URL(baseUrl));
+    await client.connect(transport);
 
     try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      const result = await client.callTool({ name: "sqlChat", arguments: { query } });
+      const content = (
+        result as { content?: Array<{ type: string; text?: string }> }
+      ).content;
+      const text =
+        content
+          ?.filter(
+            (c): c is { type: "text"; text: string } => c.type === "text"
+          )
+          .map((c) => c.text)
+          .join("") || "";
 
-        buffer += decoder.decode(value, { stream: true });
-
-        const lines = buffer.split("\n\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          if (line.trim() === "" || !line.startsWith("data: ")) continue;
-
-          const data = line.substring(6);
-
-          if (data === "[DONE]") {
-            break;
-          }
-
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.type === "text" && parsed.value) {
-              text += parsed.value;
-
-              yield {
-                content: [{ type: "text", text }],
-              };
-            } else if (parsed.type === "error") {
-              if (
-                typeof parsed.value === "string" &&
-                parsed.value.includes("Unhandled chunk type:")
-              ) {
-                console.warn(parsed.value);
-                continue;
-              }
-              throw new Error(parsed.value || "Unknown error");
-            }
-          } catch (e) {
-            console.error("Error parsing SSE message:", e, data);
-          }
-        }
-      }
+      yield { content: [{ type: "text", text }] };
     } finally {
-      reader.releaseLock();
+      await client.close();
     }
   },
 };
