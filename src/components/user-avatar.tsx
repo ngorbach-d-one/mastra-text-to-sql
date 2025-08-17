@@ -28,15 +28,18 @@ export function useUserInitials() {
           const data = await res.json();
           let userDetails = "";
           if (Array.isArray(data)) {
-            const identity: {
-              user_claims?: Claim[];
-              user_id?: string;
-            } | undefined = data[0];
+            const identity:
+              | {
+                  user_claims?: Claim[];
+                  user_id?: string;
+                }
+              | undefined = data[0];
             userDetails =
               identity?.user_claims?.find(
                 (c: Claim) => c.typ === "preferred_username"
               )?.val ??
-              identity?.user_claims?.find((c: Claim) => c.typ === "name")?.val ??
+              identity?.user_claims?.find((c: Claim) => c.typ === "name")
+                ?.val ??
               identity?.user_id ??
               "";
           } else {
@@ -49,9 +52,7 @@ export function useUserInitials() {
               .split(/[\s@._-]+/)
               .filter(Boolean)
               .slice(0, 2);
-            const init = parts
-              .map((p: string) => p[0]?.toUpperCase())
-              .join("");
+            const init = parts.map((p: string) => p[0]?.toUpperCase()).join("");
             setInitials(init || "A");
             cachedUser = { initials: init || "A", name: userDetails };
           }
