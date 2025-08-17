@@ -52,9 +52,15 @@ export async function POST(request: Request) {
             }
           } else if (part.type === "error") {
             try {
+              const errorMessage =
+                part.error &&
+                typeof part.error === "object" &&
+                "message" in part.error
+                  ? (part.error as { message: string }).message
+                  : "Unknown error";
               await writer.write(
                 encoder.encode(
-                  `data: ${JSON.stringify({ type: "error", value: part.error?.message || "Unknown error" })}\n\n`
+                  `data: ${JSON.stringify({ type: "error", value: errorMessage })}\n\n`
                 )
               );
             } catch (writeError) {
