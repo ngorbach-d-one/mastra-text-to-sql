@@ -31,6 +31,7 @@ import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import BarChart from "@/components/bar-chart";
 import { useUserInitials } from "@/components/user-avatar";
+import { suggestedQuestions } from "@/data/suggested-questions";
 
 export const Thread: FC = () => {
   return (
@@ -142,57 +143,32 @@ const ThreadWelcome: FC = () => {
 };
 
 const ThreadWelcomeSuggestions: FC = () => {
+  const rows = [];
+  for (let i = 0; i < suggestedQuestions.length; i += 2) {
+    rows.push(suggestedQuestions.slice(i, i + 2));
+  }
   return (
     <div className="mt-3 flex w-full flex-col gap-4">
-      {/* Top row - 2 suggestions */}
-      <div className="flex items-stretch justify-center gap-4 w-full">
-        <ThreadPrimitive.Suggestion
-          className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-          prompt="What are the top 10 most populated cities in the world?"
-          method="replace"
-          autoSend
+      {rows.map((row, rowIdx) => (
+        <div
+          key={rowIdx}
+          className="flex items-stretch justify-center gap-4 w-full"
         >
-          <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-            What are the top 10 most populated cities in the world?
-          </span>
-        </ThreadPrimitive.Suggestion>
-
-        <ThreadPrimitive.Suggestion
-          className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-          prompt="Show me cities in Europe with population over 2 million"
-          method="replace"
-          autoSend
-        >
-          <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-            Show me cities in Europe with population over 2 million
-          </span>
-        </ThreadPrimitive.Suggestion>
-      </div>
-
-      {/* Bottom row - 2 suggestions */}
-      <div className="flex items-stretch justify-center gap-4 w-full">
-        <ThreadPrimitive.Suggestion
-          className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-          prompt="What is the average city population by continent?"
-          method="replace"
-          autoSend
-        >
-          <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-            What is the average city population by continent?
-          </span>
-        </ThreadPrimitive.Suggestion>
-
-        <ThreadPrimitive.Suggestion
-          className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-          prompt="List cities in Asia sorted by population"
-          method="replace"
-          autoSend
-        >
-          <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-            List cities in Asia sorted by population
-          </span>
-        </ThreadPrimitive.Suggestion>
-      </div>
+          {row.map((question) => (
+            <ThreadPrimitive.Suggestion
+              key={question}
+              className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
+              prompt={question}
+              method="replace"
+              autoSend
+            >
+              <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
+                {question}
+              </span>
+            </ThreadPrimitive.Suggestion>
+          ))}
+        </div>
+      ))}
     </div>
   );
 };
