@@ -18,7 +18,9 @@ export function UserAvatar() {
             .split(/[\s@._-]+/)
             .filter(Boolean)
             .slice(0, 2);
-          const init = parts.map((p) => p[0]?.toUpperCase()).join("");
+          const init = parts
+            .map((p: string) => p[0]?.toUpperCase())
+            .join("");
           setInitials(init || null);
         }
       } catch {

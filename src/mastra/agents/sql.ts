@@ -3,10 +3,11 @@ import { Agent } from "@mastra/core/agent";
 import * as tools from "../tools/population-info";
 
 import { readFileSync } from "fs";
+import path from "path";
 import type { LanguageModelV1 } from "ai";
 
 const schema = readFileSync(
-  new URL("./fallback-schema.sql", import.meta.url),
+  path.join(process.cwd(), "src/mastra/agents/fallback-schema.sql"),
   "utf8",
 );
 
