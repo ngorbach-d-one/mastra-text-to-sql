@@ -13,6 +13,31 @@ export default function DataPage() {
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [chartData, setChartData] = useState<{ label: string; value: number }[]>([]);
+
+  useEffect(() => {
+    if (!tableData?.rows.length) {
+      setChartData([]);
+      return;
+    }
+
+    const rows = tableData.rows;
+    const numColIndex = tableData.headers.findIndex((_, idx) =>
+      rows.some((row) => !isNaN(Number(row[idx].replace(/,/g, ""))))
+    );
+
+    if (numColIndex === -1) {
+      setChartData([]);
+      return;
+    }
+
+    const labelIndex = numColIndex === 0 ? 1 : 0;
+    const data = rows.slice(0, 10).map((row) => ({
+      label: row[labelIndex],
+      value: Number(row[numColIndex].replace(/,/g, "")),
+    }));
+    setChartData(data);
+  }, [tableData]);
 
   const chartData = useMemo(() => {
     if (!tableData) return [];
