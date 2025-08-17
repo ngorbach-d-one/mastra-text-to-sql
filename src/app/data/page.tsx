@@ -39,21 +39,6 @@ export default function DataPage() {
     setChartData(data);
   }, [tableData]);
 
-  const chartData = useMemo(() => {
-    if (!tableData) return [];
-    if (!tableData.rows.length) return [];
-    const rows = tableData.rows;
-    const numColIndex = tableData.headers.findIndex((_, idx) =>
-      rows.some((row) => !isNaN(Number(row[idx].replace(/,/g, ""))))
-    );
-    if (numColIndex === -1) return [];
-    const labelIndex = numColIndex === 0 ? 1 : 0;
-    return rows.slice(0, 10).map((row) => ({
-      label: row[labelIndex],
-      value: Number(row[numColIndex].replace(/,/g, "")),
-    }));
-  }, [tableData]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
