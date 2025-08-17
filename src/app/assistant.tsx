@@ -15,8 +15,8 @@ export const Assistant = () => {
       <div className="flex h-full">
         <aside
           className={cn(
-            "border-r bg-muted transition-all duration-300 overflow-hidden h-[calc(100dvh-4.5rem)]",
-            open ? "mt-18 w-64 p-4" : "w-0 p-0"
+            "border-r bg-muted transition-all duration-300 overflow-hidden h-full",
+            open ? "w-64 p-4" : "w-0 p-0"
           )}
         >
           {open && <ThreadList />}
@@ -24,7 +24,7 @@ export const Assistant = () => {
         <div className="relative flex-1">
           <button
             onClick={() => setOpen((o) => !o)}
-            className="absolute left-0 top-18 z-52 rounded-r-md rounded-l-none border p-1 bg-background hover:bg-muted"
+            className="absolute left-0 top-4 z-50 rounded-r-md rounded-l-none border p-1 bg-background hover:bg-muted"
             aria-label={open ? "Close thread list" : "Open thread list"}
           >
             {open ? (
