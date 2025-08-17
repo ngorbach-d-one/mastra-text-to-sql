@@ -24,7 +24,7 @@ export default function Home() {
           </Link>
         </div>
       </header>
-      <div className="w-full h-[calc(100dvh-5rem)] px-6 pt-20">
+      <div className="w-full h-dvh px-6">
         <Assistant />
       </div>
     </main>
