@@ -42,7 +42,7 @@ export const Thread: FC = () => {
       }}
     >
       <ThreadTitleGenerator />
-      <ThreadPrimitive.Viewport className="flex h-full flex-col items-center overflow-y-scroll scroll-smooth bg-inherit px-4 pt-[60px]">
+      <ThreadPrimitive.Viewport className="flex h-full flex-col items-center overflow-y-scroll scroll-smooth bg-inherit px-4 pt-[88px]">
         <ThreadWelcome />
 
         <ThreadPrimitive.Messages
