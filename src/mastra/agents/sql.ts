@@ -1,4 +1,5 @@
-import { azure } from "@ai-sdk/azure";
+import { createAzure } from "@ai-sdk/azure";
+import { openai } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
 import * as tools from "../tools/population-info";
 import { Client } from "pg";
@@ -134,9 +135,26 @@ ${schema}
        ### Results
        [Query results in table format]
     `,
-    model: azure(
-      process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o",
-    ) as LanguageModelV1,
+    model: (function getModel(): LanguageModelV1 {
+      if (
+        process.env.AZURE_API_KEY &&
+        process.env.AZURE_RESOURCE_NAME
+      ) {
+        const provider = createAzure({
+          apiKey: process.env.AZURE_API_KEY,
+          resourceName: process.env.AZURE_RESOURCE_NAME,
+        });
+        return provider(
+          process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o",
+        );
+      }
+      if (process.env.OPENAI_API_KEY) {
+        return openai(process.env.OPENAI_MODEL || "gpt-4o");
+      }
+      throw new Error(
+        "Missing Azure or OpenAI credentials. Set AZURE_API_KEY and AZURE_RESOURCE_NAME, or OPENAI_API_KEY.",
+      );
+    })(),
     tools: {
       executeSQLQuery: tools.populationInfo,
     },
