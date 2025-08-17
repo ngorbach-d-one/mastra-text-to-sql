@@ -62,6 +62,7 @@ async function main() {
   const wss = new WebSocketServer({ port: 3030 });
 
   wss.on("connection", (socket) => {
+    console.log("MCP client connected");
     const server = createServer();
 
     const transport: Transport = {

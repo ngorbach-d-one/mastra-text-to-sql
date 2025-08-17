@@ -13,7 +13,11 @@ let client: Client | null = null;
 async function getClient() {
   if (!client) {
     client = new Client({ name: "sql-ui", version: "1.0.0" });
-    const transport = new WebSocketClientTransport(new URL("ws://localhost:3030"));
+    const url =
+      typeof window !== "undefined"
+        ? `ws://${window.location.hostname}:3030`
+        : "ws://localhost:3030";
+    const transport = new WebSocketClientTransport(new URL(url));
     await client.connect(transport);
   }
   return client;
