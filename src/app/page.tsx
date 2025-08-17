@@ -22,6 +22,12 @@ export default function Home() {
             View Dataset
           </Link>
         </div>
+        <Link
+          href="/data"
+          className="px-4 py-2 text-sm bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-md transition-colors"
+        >
+          View Dataset
+        </Link>
       </header>
       <div className="w-full h-dvh">
         <Assistant />
