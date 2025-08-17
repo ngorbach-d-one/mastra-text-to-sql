@@ -1,5 +1,7 @@
 import "dotenv/config";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import express from "express";
+import path from "path";
 import { WebSocketServer } from "ws";
 import { z } from "zod";
 import { sqlAgent } from "../agents/sql";
@@ -60,7 +62,22 @@ function createServer() {
 }
 
 async function main() {
-  const wss = new WebSocketServer({ port: 3030 });
+  const port = Number(process.env.PORT) || 3030;
+
+  // Basic HTTP server so platforms like Azure App Service have files to serve
+  const app = express();
+  const publicPath = path.join(process.cwd(), "public");
+  app.use(express.static(publicPath));
+  app.get("/", (_req, res) => {
+    res.send("MCP server running");
+  });
+
+  const httpServer = app.listen(port, () => {
+    console.log(`HTTP server listening on http://localhost:${port}`);
+  });
+
+  // Attach WebSocket MCP server to the same HTTP server
+  const wss = new WebSocketServer({ server: httpServer });
 
   wss.on("connection", (socket) => {
     console.log("MCP client connected");
@@ -68,7 +85,7 @@ async function main() {
 
     const transport: Transport = {
       async start() {
-        // no-op: connection already established
+        // connection already established
       },
       async send(message) {
         socket.send(JSON.stringify(message));
@@ -100,7 +117,7 @@ async function main() {
     });
   });
 
-  console.log("MCP server listening on ws://localhost:3030");
+  console.log(`MCP server listening on ws://localhost:${port}`);
 }
 
 main().catch((err) => {
