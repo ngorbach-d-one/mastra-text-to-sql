@@ -1,6 +1,7 @@
 import { Assistant } from "./assistant";
 import Link from "next/link";
 import Image from "next/image";
+import { UserAvatar } from "../components/user-avatar";
 
 export default function Home() {
   return (
@@ -15,12 +16,15 @@ export default function Home() {
           />
           <h1 className="text-2xl font-semibold">Chat with ABS Data</h1>
         </div>
-        <Link
-          href="/data"
-          className="px-4 py-2 text-sm bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-md transition-colors"
-        >
-          View Dataset
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/data"
+            className="px-4 py-2 text-sm bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-md transition-colors"
+          >
+            View Dataset
+          </Link>
+          <UserAvatar />
+        </div>
       </header>
       <div className="w-full h-dvh">
         <Assistant />
