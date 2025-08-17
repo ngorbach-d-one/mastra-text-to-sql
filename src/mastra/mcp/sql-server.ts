@@ -27,13 +27,30 @@ function createServer() {
         question: z.string(),
       },
     },
-    async ({ question }) => {
-      const result = await sqlAgent.generate([
+    async ({ question }, extra) => {
+      const stream = await sqlAgent.stream([
         { role: "user", content: question },
       ]);
 
+      let text = "";
+      let progress = 0;
+      const progressToken = extra.requestId;
+
+      for await (const chunk of stream.textStream) {
+        progress += chunk.length;
+        text += chunk;
+        await extra.sendNotification({
+          method: "notifications/progress",
+          params: {
+            progressToken,
+            progress,
+            message: chunk,
+          },
+        });
+      }
+
       return {
-        content: [{ type: "text", text: result.text }],
+        content: [{ type: "text", text }],
       };
     },
   );
