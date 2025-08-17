@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface UserInfo {
   initials: string;
@@ -75,11 +75,22 @@ export function useUserInitials() {
 export function UserAvatar() {
   const { initials, name, checked } = useUserInitials();
   const [showPopup, setShowPopup] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowPopup(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   if (!checked) return null;
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <div
         className="w-8 h-8 rounded-full bg-white text-purple-700 flex items-center justify-center text-sm font-medium cursor-pointer"
         onClick={() => setShowPopup((prev) => !prev)}
@@ -90,7 +101,7 @@ export function UserAvatar() {
         <div className="absolute right-0 mt-2 bg-white text-purple-700 border border-purple-200 rounded-md shadow-md px-3 py-1 text-xs z-50">
           <div>{name || "Anonymous"}</div>
           <button
-            className="mt-1 text-left text-purple-700 hover:underline"
+            className="mt-1 text-left text-purple-700 hover:underline cursor-pointer"
             onClick={() => {
               window.location.href = "/.auth/logout";
             }}

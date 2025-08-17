@@ -157,7 +157,7 @@ const ThreadWelcomeSuggestions: FC = () => {
           {row.map((question) => (
             <ThreadPrimitive.Suggestion
               key={question}
-              className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
+              className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in cursor-pointer"
               prompt={question}
               method="replace"
               autoSend
@@ -249,7 +249,7 @@ const ComposerAction: FC = () => {
         variant="outline"
         onClick={listening ? stopListening : startListening}
         className={cn(
-          "my-2.5 size-8 p-2 transition-opacity ease-in",
+          "my-2.5 size-8 p-2 transition-opacity ease-in cursor-pointer",
           listening && "text-red-500"
         )}
       >
@@ -261,7 +261,7 @@ const ComposerAction: FC = () => {
           <TooltipIconButton
             tooltip="Send"
             variant="default"
-            className="my-2.5 size-8 p-2 transition-opacity ease-in"
+            className="my-2.5 size-8 p-2 transition-opacity ease-in cursor-pointer"
           >
             <SendHorizontalIcon />
           </TooltipIconButton>
