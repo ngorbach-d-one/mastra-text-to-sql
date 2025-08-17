@@ -1,74 +1,19 @@
 import { azure } from "@ai-sdk/azure";
 import { Agent } from "@mastra/core/agent";
 import * as tools from "../tools/population-info";
-import { Client } from "pg";
+
 import { readFileSync } from "fs";
 import type { LanguageModelV1 } from "ai";
 
-const TABLES = ["customers", "employees", "order_items", "orders", "products"];
-
-const FALLBACK_SCHEMA = readFileSync(
+const schema = readFileSync(
   new URL("./fallback-schema.sql", import.meta.url),
-  "utf8"
+  "utf8",
 );
-
-const getDatabaseSchema = async () => {
-  if (!process.env.PGHOST) {
-    return FALLBACK_SCHEMA;
-  }
-
-  const client = new Client({
-    host: process.env.PGHOST,
-    port: process.env.PGPORT ? parseInt(process.env.PGPORT, 10) : undefined,
-    user: process.env.PGUSER,
-    password: process.env.PGPASSWORD,
-    database: process.env.PGDATABASE,
-    ssl: { rejectUnauthorized: false },
-  });
-
-  try {
-    await client.connect();
-    const { rows } = await client.query(
-      `SELECT table_name, column_name, data_type, character_maximum_length, numeric_precision, numeric_scale
-       FROM information_schema.columns
-       WHERE table_schema = 'public' AND table_name = ANY($1::text[])
-       ORDER BY table_name, ordinal_position;`,
-      [TABLES]
-    );
-
-    const schemaByTable = rows.reduce<Record<string, string[]>>((acc, row) => {
-      let type = row.data_type.toUpperCase();
-      if (row.character_maximum_length) {
-        type += `(${row.character_maximum_length})`;
-      } else if (row.numeric_precision) {
-        type += `(${row.numeric_precision}${row.numeric_scale !== null ? `, ${row.numeric_scale}` : ""})`;
-      }
-      if (!acc[row.table_name]) {
-        acc[row.table_name] = [];
-      }
-      acc[row.table_name].push(`      ${row.column_name} ${type}`);
-      return acc;
-    }, {});
-
-    return (
-      TABLES.map(
-        (table) =>
-          `${table} (\n${(schemaByTable[table] || []).join(",\n")}\n    )`
-      ).join(";\n") + ";"
-    );
-  } catch (err) {
-    console.error("Failed to fetch database schema:", err);
-    return FALLBACK_SCHEMA;
-  } finally {
-    await client.end();
-  }
-};
-
-const schema = await getDatabaseSchema();
 
 export const sqlAgent = new Agent({
   name: "SQL Agent",
-  instructions: `You are a SQL (PostgreSQL) expert for a customer orders database. Generate and execute queries that answer user questions about customers, employees, orders, order items, and products.
+  instructions: `You are a SQL (PostgreSQL) expert for a customer orders database. Generate and execute queries that answer user
+ questions about customers, employees, orders, order items, and products.
 
     DATABASE SCHEMA:
 ${schema}
