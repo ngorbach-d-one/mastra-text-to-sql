@@ -8,6 +8,7 @@ import {
   type TextContentPart,
 } from "@assistant-ui/react";
 import { useMemo, type FC } from "react";
+import Image from "next/image";
 import {
   ArrowDownIcon,
   CheckIcon,
@@ -30,7 +31,7 @@ export const Thread: FC = () => {
     <ThreadPrimitive.Root
       className="bg-background box-border flex h-full flex-col overflow-hidden"
       style={{
-        ["--thread-max-width" as string]: "42rem",
+        ["--thread-max-width" as string]: "62rem",
       }}
     >
       <ThreadPrimitive.Viewport className="flex h-full flex-col items-center overflow-y-scroll scroll-smooth bg-inherit px-4 pt-[60px]">
@@ -75,7 +76,14 @@ const ThreadWelcome: FC = () => {
   return (
     <ThreadPrimitive.Empty>
       <div className="flex w-full max-w-[var(--thread-max-width)] flex-grow flex-col">
-        <div className="flex w-full flex-grow flex-col items-center justify-center"></div>
+        <div className="flex w-full flex-grow flex-col items-center justify-center">
+          <Image
+            src="/purple-pup.png"
+            alt="Friendly dog mascot"
+            width={300}
+            height={300}
+          />
+        </div>
         <ThreadWelcomeSuggestions />
       </div>
     </ThreadPrimitive.Empty>
@@ -233,7 +241,7 @@ const AssistantMessage: FC = () => {
     m.content
       .filter((part): part is TextContentPart => part.type === "text")
       .map((part) => part.text)
-      .join("\n\n"),
+      .join("\n\n")
   );
 
   const chartData = useMemo(() => {
@@ -255,11 +263,11 @@ const AssistantMessage: FC = () => {
       line
         .split("|")
         .slice(1, -1)
-        .map((cell) => cell.trim()),
+        .map((cell) => cell.trim())
     );
     if (!rows.length) return [];
     const numColIndex = headers.findIndex((_, idx) =>
-      rows.some((row) => !isNaN(Number(row[idx].replace(/,/g, "")))),
+      rows.some((row) => !isNaN(Number(row[idx].replace(/,/g, ""))))
     );
     if (numColIndex === -1) return [];
     const labelIndex = numColIndex === 0 ? 1 : 0;
