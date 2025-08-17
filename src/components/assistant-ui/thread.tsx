@@ -6,9 +6,11 @@ import {
   ThreadPrimitive,
   useMessage,
   useComposerRuntime,
+  useThread,
+  useAssistantRuntime,
   type TextContentPart,
 } from "@assistant-ui/react";
-import { useMemo, useRef, useState, type FC } from "react";
+import { useEffect, useMemo, useRef, useState, type FC } from "react";
 import Image from "next/image";
 import {
   ArrowDownIcon,
@@ -38,6 +40,7 @@ export const Thread: FC = () => {
         ["--thread-max-width" as string]: "62rem",
       }}
     >
+      <ThreadTitleGenerator />
       <ThreadPrimitive.Viewport className="flex h-full flex-col items-center overflow-y-scroll scroll-smooth bg-inherit px-4 pt-[60px]">
         <ThreadWelcome />
 
@@ -60,6 +63,50 @@ export const Thread: FC = () => {
       </ThreadPrimitive.Viewport>
     </ThreadPrimitive.Root>
   );
+};
+
+const ThreadTitleGenerator: FC = () => {
+  const runtime = useAssistantRuntime();
+  const messages = useThread((t) => t.messages);
+  const threadId = useThread((t) => t.threadId);
+  const generatedRef = useRef(new Set<string>());
+
+  useEffect(() => {
+    if (!runtime) return;
+    const threadItem = runtime.threads.mainItem;
+    const title = threadItem.getState().title;
+    if (
+      messages.length > 0 &&
+      !title &&
+      !generatedRef.current.has(threadId)
+    ) {
+      generatedRef.current.add(threadId);
+      const userMessages = messages
+        .filter((m) => m.role === "user")
+        .map((m) =>
+          m.content
+            .filter((c) => c.type === "text")
+            .map((c) => (c as TextContentPart).text)
+            .join(" ")
+        );
+      fetch("/api/thread-name", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: userMessages }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.title) {
+            threadItem.rename(data.title);
+          }
+        })
+        .catch((err) =>
+          console.error("Failed to generate thread title", err),
+        );
+    }
+  }, [runtime, messages, threadId]);
+
+  return null;
 };
 
 const ThreadScrollToBottom: FC = () => {
