@@ -5,9 +5,10 @@ import {
   MessagePrimitive,
   ThreadPrimitive,
   useMessage,
+  useComposerRuntime,
   type TextContentPart,
 } from "@assistant-ui/react";
-import { useMemo, type FC } from "react";
+import { useMemo, useRef, useState, type FC } from "react";
 import Image from "next/image";
 import {
   ArrowDownIcon,
@@ -18,6 +19,8 @@ import {
   PencilIcon,
   RefreshCwIcon,
   SendHorizontalIcon,
+  MicIcon,
+  SquareIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -149,18 +152,87 @@ const ThreadWelcomeSuggestions: FC = () => {
 const Composer: FC = () => {
   return (
     <ComposerPrimitive.Root className="focus-within:border-ring/20 flex w-full flex-wrap items-end rounded-lg border bg-inherit px-2.5 shadow-sm transition-colors ease-in">
+      <ComposerMic />
       <ComposerPrimitive.Input
         rows={1}
         autoFocus
         placeholder="Write a message..."
         className="placeholder:text-muted-foreground max-h-40 flex-grow resize-none border-none bg-transparent px-2 py-4 text-sm outline-none focus:ring-0 disabled:cursor-not-allowed"
       />
-      <ComposerAction />
+      <ComposerActions />
     </ComposerPrimitive.Root>
   );
 };
 
-const ComposerAction: FC = () => {
+const ComposerMic: FC = () => {
+  const composerRuntime = useComposerRuntime();
+  const [listening, setListening] = useState(false);
+
+  interface SpeechRecognitionEvent {
+    results: Array<{ 0: { transcript: string } }>;
+  }
+
+  interface SpeechRecognitionInstance {
+    lang: string;
+    start: () => void;
+    stop: () => void;
+    onresult: ((event: SpeechRecognitionEvent) => void) | null;
+    onend: (() => void) | null;
+  }
+
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+
+  const startListening = () => {
+    const SpeechRecognitionConstructor =
+      (window as unknown as {
+        SpeechRecognition?: new () => SpeechRecognitionInstance;
+        webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+      }).SpeechRecognition ||
+      (window as unknown as {
+        SpeechRecognition?: new () => SpeechRecognitionInstance;
+        webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+      }).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionConstructor) return;
+
+    const recognition = new SpeechRecognitionConstructor();
+    recognition.lang = "en-US";
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = Array.from(event.results)
+        .map((r) => r[0].transcript)
+        .join(" ");
+      const prev = composerRuntime.getState().text;
+      composerRuntime.setText(
+        `${prev ? prev + " " : ""}${transcript}`.trim(),
+      );
+    };
+    recognition.onend = () => setListening(false);
+    recognition.start();
+    recognitionRef.current = recognition;
+    setListening(true);
+  };
+
+  const stopListening = () => {
+    recognitionRef.current?.stop();
+    setListening(false);
+  };
+
+  return (
+    <TooltipIconButton
+      tooltip={listening ? "Stop recording" : "Start recording"}
+      variant="outline"
+      onClick={listening ? stopListening : startListening}
+      className={cn(
+        "my-2.5 size-8 p-2 transition-opacity ease-in",
+        listening && "text-red-500",
+      )}
+    >
+      {listening ? <SquareIcon /> : <MicIcon />}
+    </TooltipIconButton>
+  );
+};
+
+const ComposerActions: FC = () => {
   return (
     <>
       <ThreadPrimitive.If running={false}>
