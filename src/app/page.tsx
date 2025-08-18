@@ -14,7 +14,9 @@ export default function Home() {
             width={40}
             height={40}
           />
-          <h1 className="ml-25 text-2xl font-semibold">Chat with ABS Data</h1>
+          <h1 className="ml-25 text-2xl font-semibold">
+            Chat with your Data: Asset-Backed Securities
+          </h1>
         </div>
         <div className="flex items-center gap-4">
           <Link
