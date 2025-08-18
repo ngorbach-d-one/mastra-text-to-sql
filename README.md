@@ -52,7 +52,10 @@ NEXT_PUBLIC_MCP_WS_URL=ws://localhost:3030
 # Install dependencies
 npm install
 
-# Run the development server
+# Start the MCP server
+npm run mcp
+
+# In a separate terminal, run the development server
 npm run dev
 ```
 
