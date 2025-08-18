@@ -58,6 +58,15 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
+### Running the MCP server with Docker
+
+```bash
+docker build -f Dockerfile.mcp -t mastra-mcp .
+docker run --env-file .env -p 3030:3030 mastra-mcp
+```
+
+This builds a lightweight container that starts the MCP SQL server on port 3030.
+
 ## Usage
 
 1. **Ask Questions**: Type a natural language question about city populations in the search box
