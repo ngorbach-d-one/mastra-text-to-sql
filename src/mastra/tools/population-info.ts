@@ -35,11 +35,9 @@ const executeQuery = async (query: string) => {
 export const populationInfo = createTool({
   id: "Execute SQL Query",
   inputSchema: z.object({
-    query: z
-      .string()
-      .describe("SQL query to execute against the cities database"),
+    query: z.string().describe("SQL query to execute against the database"),
   }),
-  description: `Executes a SQL query against the cities database and returns the results`,
+  description: `Executes a SQL query against the database and returns the results`,
   execute: async ({ context: { query } }) => {
     try {
       const trimmedQuery = query.trim().toLowerCase();
