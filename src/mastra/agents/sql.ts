@@ -8,13 +8,13 @@ import type { LanguageModelV1 } from "ai";
 
 const schema = readFileSync(
   path.join(process.cwd(), "src/mastra/agents/fallback-schema.sql"),
-  "utf8",
+  "utf8"
 );
 
 export const sqlAgent = new Agent({
   name: "SQL Agent",
-  instructions: `You are a SQL (PostgreSQL) expert for a customer orders database. Generate and execute queries that answer user
- questions about customers, employees, orders, order items, and products.
+  instructions: `You are a SQL (PostgreSQL) expert for a asset-backed securities database. Generate and execute queries that answer user
+ questions about asset-backed securities.
 
     DATABASE SCHEMA:
 ${schema}
@@ -27,7 +27,7 @@ ${schema}
     - Format rates as decimals (e.g., 0.1 for 10%)
 
     Key SQL formatting tips:
-    - Start main clauses (SELECT, FROM, WHERE, etc.) on new lines
+    - Use a single line
     - Indent subqueries and complex conditions
     - Align related items (like column lists) for readability
     - Put each JOIN on a new line
@@ -35,7 +35,7 @@ ${schema}
 
     WORKFLOW:
     1. Analyze the user's question about the data
-    2. Generate an appropriate SQL query
+    2. Generate an appropriate SQL query.
     3. Execute the query using the executeSQLQuery tool
     4. Return results in markdown format with these sections:
 
@@ -51,7 +51,7 @@ ${schema}
        [Query results in table format]
     `,
   model: azure(
-    process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o",
+    process.env.AZURE_DEPLOYMENT_NAME || "gpt-4o"
   ) as LanguageModelV1,
   tools: {
     executeSQLQuery: tools.populationInfo,

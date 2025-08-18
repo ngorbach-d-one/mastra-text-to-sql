@@ -5,6 +5,8 @@ type SqlValue = string | number | boolean | null;
 type SqlRow = Record<string, SqlValue>;
 type SqlQueryResult = SqlRow[];
 
+//console.log("Connecting to PostgreSQL database: ", process.env.PGHOST);
+
 const pool = new Pool({
   host: process.env.PGHOST,
   port: process.env.PGPORT ? parseInt(process.env.PGPORT) : undefined,

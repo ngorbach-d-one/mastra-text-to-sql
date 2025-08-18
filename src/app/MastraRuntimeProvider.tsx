@@ -37,18 +37,14 @@ const MastraModelAdapter: ChatModelAdapter = {
     let done = false;
 
     const resultPromise = client
-      .callTool(
-        { name: "ask-sql", arguments: { question } },
-        undefined,
-        {
-          onprogress: ({ message }: { message?: string }) => {
-            if (typeof message === "string") {
-              queue.push(message);
-              accumulated += message;
-            }
-          },
+      .callTool({ name: "ask-sql", arguments: { question } }, undefined, {
+        onprogress: ({ message }: { message?: string }) => {
+          if (typeof message === "string") {
+            queue.push(message);
+            accumulated += message;
+          }
         },
-      )
+      })
       .then((res) => {
         done = true;
         return res;
